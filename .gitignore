@@ -8,24 +8,17 @@ target/
 # Package files
 *.jar
 *.war
-*.ear
 
 # Maven
 .mvn/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
-pom.xml.next
-release.properties
 
 # IDE
 .idea/
 *.iml
-*.ipr
-*.iws
 .vscode/
-*.swp
-*.swo
 .project
 .classpath
 .settings/
@@ -37,6 +30,9 @@ out/
 .DS_Store
 Thumbs.db
 
-# Temporary files
+# Stored messages JSON (runtime data)
+stored_messages.json
+
+# Temporary
 *~
 *.tmp
