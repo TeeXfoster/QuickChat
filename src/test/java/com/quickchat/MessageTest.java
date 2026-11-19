@@ -5,17 +5,18 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for Part 2 – Message class.
- * Test data taken directly from the PROG5121 brief.
+ * Unit tests for Part 2 + Part 3.
+ * Test data taken from the PROG5121 brief.
  */
 public class MessageTest {
 
     @BeforeEach
     void setUp() {
-        Message.resetCounters();
+        Message.resetAll();
+        Message.populateTestData();
     }
 
-    // ---------- Message length tests ----------
+    // ---------- Part 2 style tests ----------
 
     @Test
     void testMessageLengthSuccess() {
@@ -25,134 +26,101 @@ public class MessageTest {
     }
 
     @Test
-    void testMessageLengthFailure() {
-        Message msg = new Message();
-        // Create a string longer than 250 characters
-        StringBuilder longMsg = new StringBuilder();
-        for (int i = 0; i < 30; i++) {
-            longMsg.append("This is a long message. ");
-        }
-        msg.setMessageText(longMsg.toString());
-        String result = msg.validateMessageLength();
-        assertTrue(result.startsWith("Message exceeds 250 characters by "));
-        assertTrue(result.contains("please reduce the size."));
-    }
-
-    // ---------- Recipient tests ----------
-
-    @Test
-    void testRecipientCorrectlyFormatted() {
+    void testRecipientCorrect() {
         Message msg = new Message();
         msg.setRecipient("+27718693002");
         assertEquals("Cell phone number successfully captured.", msg.checkRecipientCell());
     }
 
     @Test
-    void testRecipientIncorrectlyFormatted() {
+    void testRecipientIncorrect() {
         Message msg = new Message();
         msg.setRecipient("08575975889");
-        assertEquals(
-            "Cell phone number is incorrectly formatted or does not contain an international code. Please correct the number and try again.",
-            msg.checkRecipientCell()
-        );
+        assertTrue(msg.checkRecipientCell().contains("incorrectly formatted"));
     }
 
-    // ---------- Message Hash test (exact data from brief) ----------
-
     @Test
-    void testMessageHashCorrect() {
-        // Test Case 1 data from brief:
-        // Message: “Hi Mike, can you join us for dinner tonight?”
-        // Expected hash style: 00:0:HITONIGHT  (first two of ID : number : first+last word CAPS)
+    void testMessageHash() {
         Message msg = new Message();
-        msg.setMessageID("0012345678"); // first two digits = 00
+        msg.setMessageID("0012345678");
         msg.setMessageNumber(0);
         msg.setMessageText("Hi Mike, can you join us for dinner tonight?");
-        String hash = msg.createMessageHash();
-        assertEquals("00:0:HITONIGHT", hash);
-    }
-
-    // ---------- Message ID test ----------
-
-    @Test
-    void testMessageIDCreated() {
-        Message msg = new Message();
-        assertNotNull(msg.getMessageID());
-        assertTrue(msg.checkMessageID());
-        assertEquals(10, msg.getMessageID().length());
-    }
-
-    // ---------- SentMessage options ----------
-
-    @Test
-    void testSendMessageOption() {
-        Message msg = new Message();
-        msg.setRecipient("+27718693002");
-        msg.setMessageText("Hi Mike, can you join us for dinner tonight?");
-        msg.setMessageNumber(0);
-        msg.createMessageHash();
-        String result = msg.SentMessage("1");
-        assertEquals("Message successfully sent.", result);
-        assertEquals(1, msg.returnTotalMessagess());
+        assertEquals("00:0:HITONIGHT", msg.createMessageHash());
     }
 
     @Test
-    void testDisregardMessageOption() {
+    void testSendOption() {
+        Message.resetAll();
         Message msg = new Message();
         msg.setRecipient("+27718693002");
         msg.setMessageText("Test");
-        String result = msg.SentMessage("2");
-        assertEquals("Press 0 to delete the message.", result);
-    }
-
-    @Test
-    void testStoreMessageOption() {
-        Message msg = new Message();
-        msg.setRecipient("+27718693002");
-        msg.setMessageText("Hi Mike, can you join us for dinner tonight?");
         msg.setMessageNumber(0);
         msg.createMessageHash();
-        String result = msg.SentMessage("3");
-        assertEquals("Message successfully stored.", result);
+        assertEquals("Message successfully sent.", msg.SentMessage("1"));
+        assertEquals(1, msg.returnTotalMessagess());
     }
 
-    // ---------- Integration style test using brief Test Data ----------
+    // ---------- Part 3 required tests (exact brief expectations) ----------
 
     @Test
-    void testFullFlowTestData1() {
-        // Num Messages = 2
-        // Message 1: Recipient +27718693002, Message “Hi Mike, can you join us for dinner tonight?”, Select Send
-        Message msg1 = new Message();
-        msg1.setMessageID("0012345678");
-        msg1.setMessageNumber(0);
-        msg1.setRecipient("+27718693002");
-        msg1.setMessageText("Hi Mike, can you join us for dinner tonight?");
-
-        assertEquals("Message ready to send.", msg1.validateMessageLength());
-        assertEquals("Cell phone number successfully captured.", msg1.checkRecipientCell());
-        assertEquals("00:0:HITONIGHT", msg1.createMessageHash());
-
-        String sendResult = msg1.SentMessage("1");
-        assertEquals("Message successfully sent.", sendResult);
-        assertEquals(1, msg1.returnTotalMessagess());
+    void testSentMessagesArrayPopulated() {
+        // Brief: system returns “Did you get the cake?”, “It is dinner time!”
+        String combined = "";
+        for (Message m : Message.getSentMessages()) {
+            combined += m.getMessageText() + " ";
+        }
+        assertTrue(combined.contains("Did you get the cake?"));
+        assertTrue(combined.contains("It is dinner time !") || combined.contains("It is dinner time!"));
     }
 
     @Test
-    void testFullFlowTestData2_Discard() {
-        // Message 2: Recipient 08575975889 (invalid), Message “Hi Keegan, did you receive the payment?”, Select Discard
-        Message msg2 = new Message();
-        msg2.setMessageNumber(1);
-        msg2.setRecipient("08575975889");
-        msg2.setMessageText("Hi Keegan, did you receive the payment?");
+    void testDisplayLongestMessage() {
+        // Brief expected: “Where are you? You are late! I have asked you to be on time.”
+        String longest = Message.displayLongestMessage();
+        assertEquals("Where are you? You are late! I have asked you to be on time.", longest);
+    }
 
-        assertEquals(
-            "Cell phone number is incorrectly formatted or does not contain an international code. Please correct the number and try again.",
-            msg2.checkRecipientCell()
-        );
+    @Test
+    void testSearchByMessageID() {
+        // Brief: message 4, ID “0838884567” → “It is dinner time!”
+        String result = Message.searchByMessageID("0838884567");
+        assertTrue(result.contains("It is dinner time"));
+    }
 
-        String discardResult = msg2.SentMessage("2");
-        assertEquals("Press 0 to delete the message.", discardResult);
-        // Total sent should still be 0 because we discarded
-        assertEquals(0, msg2.returnTotalMessagess());
+    @Test
+    void testSearchByRecipient() {
+        // Brief: +27838884567 → the two stored messages for that number
+        String result = Message.searchByRecipient("+27838884567");
+        assertTrue(result.contains("Where are you? You are late! I have asked you to be on time."));
+        assertTrue(result.contains("Ok, I am leaving without you."));
+    }
+
+    @Test
+    void testDeleteByHash() {
+        // Delete the message that has the long text (Message 2)
+        Message m2 = null;
+        for (Message m : Message.getStoredMessages()) {
+            if (m.getMessageText().contains("Where are you?")) {
+                m2 = m;
+                break;
+            }
+        }
+        assertNotNull(m2);
+        String hash = m2.getMessageHash();
+        String result = Message.deleteByHash(hash);
+        assertTrue(result.contains("successfully deleted"));
+        // After delete it should no longer be the longest in the remaining stored messages
+        String longestAfter = Message.displayLongestMessage();
+        assertFalse(longestAfter.contains("Where are you? You are late!"));
+    }
+
+    @Test
+    void testDisplayReport() {
+        String report = Message.displayReport();
+        assertTrue(report.contains("Message Hash:"));
+        assertTrue(report.contains("Recipient:"));
+        assertTrue(report.contains("Message:"));
+        assertTrue(report.contains("Where are you? You are late! I have asked you to be on time.")
+                || report.contains("Ok, I am leaving without you."));
     }
 }

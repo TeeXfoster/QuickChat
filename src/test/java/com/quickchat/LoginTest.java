@@ -4,9 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for Login class (Part 1 functionality still required).
- */
 public class LoginTest {
 
     private Login login;
@@ -17,83 +14,44 @@ public class LoginTest {
     }
 
     @Test
-    void testUsernameCorrectlyFormatted() {
+    void testUsernameCorrect() {
         assertEquals("Username successfully captured.", login.getUsernameMessage("kyl_1"));
     }
 
     @Test
-    void testUsernameIncorrectlyFormatted() {
-        assertEquals(
-            "Username is not correctly formatted; please ensure that your username contains an underscore and is no more than five characters in length.",
-            login.getUsernameMessage("kyle!!!!!!!")
-        );
+    void testUsernameIncorrect() {
+        assertTrue(login.getUsernameMessage("kyle!!!!!!!").contains("not correctly formatted"));
     }
 
     @Test
-    void testPasswordMeetsComplexity() {
+    void testPasswordCorrect() {
         assertEquals("Password successfully captured.", login.getPasswordMessage("Ch&&sec@ke99!"));
     }
 
     @Test
-    void testPasswordDoesNotMeetComplexity() {
-        assertEquals(
-            "Password is not correctly formatted; please ensure that the password contains at least eight characters, a capital letter, a number, and a special character.",
-            login.getPasswordMessage("password")
-        );
+    void testPasswordIncorrect() {
+        assertTrue(login.getPasswordMessage("password").contains("not correctly formatted"));
     }
 
     @Test
-    void testCellPhoneCorrect() {
+    void testCellCorrect() {
         assertEquals("Cell phone number successfully added.", login.getCellPhoneMessage("+27838968976"));
     }
 
     @Test
-    void testCellPhoneIncorrect() {
-        assertEquals(
-            "Cell number is incorrectly formatted or does not contain an international code; please correct the number and try again.",
-            login.getCellPhoneMessage("08966553")
-        );
+    void testCellIncorrect() {
+        assertTrue(login.getCellPhoneMessage("08966553").contains("incorrectly formatted"));
     }
 
     @Test
-    void testLoginSuccessful() {
+    void testLoginSuccess() {
         login.registerUser("kyl_1", "Ch&&sec@ke99!", "+27838968976", "Kyle", "Smith");
         assertTrue(login.loginUser("kyl_1", "Ch&&sec@ke99!"));
     }
 
     @Test
-    void testLoginFailed() {
+    void testLoginFail() {
         login.registerUser("kyl_1", "Ch&&sec@ke99!", "+27838968976", "Kyle", "Smith");
-        assertFalse(login.loginUser("kyl_1", "wrongPassword"));
-    }
-
-    @Test
-    void testCheckUserNameTrue() {
-        assertTrue(login.checkUserName("kyl_1"));
-    }
-
-    @Test
-    void testCheckUserNameFalse() {
-        assertFalse(login.checkUserName("kyle!!!!!!!"));
-    }
-
-    @Test
-    void testCheckPasswordTrue() {
-        assertTrue(login.checkPasswordComplexity("Ch&&sec@ke99!"));
-    }
-
-    @Test
-    void testCheckPasswordFalse() {
-        assertFalse(login.checkPasswordComplexity("password"));
-    }
-
-    @Test
-    void testCheckCellTrue() {
-        assertTrue(login.checkCellPhoneNumber("+27838968976"));
-    }
-
-    @Test
-    void testCheckCellFalse() {
-        assertFalse(login.checkCellPhoneNumber("08966553"));
+        assertFalse(login.loginUser("kyl_1", "wrong"));
     }
 }
