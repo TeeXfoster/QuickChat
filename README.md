@@ -1,74 +1,42 @@
-# QuickChat – Part 2: Sending Messages
+# QuickChat – Final PoE (Part 3)
 
 **Module:** PROGRAMMING 1A (PROG5121)  
-**Assessment:** PoE – Part 2
+**Assessment:** PoE – Part 3 (Store Data and Display Task Report)
 
-## Overview
+## Features
 
-This project extends Part 1 (Registration & Login) with the full messaging feature required for Part 2.
+### Part 1
+- Registration & Login with validation
 
-### Features implemented
+### Part 2
+- Send / Disregard / Store messages
+- Message ID, Hash, JSON storage
+- Menu options 1–3
 
-- Login required before sending messages
-- Welcome message: “Welcome to QuickChat.”
-- Numeric menu (1 = Send Messages, 2 = Coming Soon, 3 = Quit)
-- User chooses how many messages to enter
-- Each message has:
-  - Unique 10-digit Message ID
-  - Auto-generated message number
-  - Recipient cell number (international code validated)
-  - Message text (max 250 characters)
-  - Message Hash (e.g. `00:0:HITONIGHT`)
-- Options after creating a message: Send / Disregard / Store
-- Messages can be stored in a JSON file
-- Total number of messages sent is displayed
-- Unit tests with the exact test data from the brief
-- GitHub Actions workflow for automated testing
-
-## Project Structure
-
-```
-QuickChat-Part2/
-├── pom.xml
-├── README.md
-├── .gitignore
-├── .github/workflows/maven.yml   ← GitHub Actions
-└── src/
-    ├── main/java/com/quickchat/
-    │   ├── Login.java
-    │   ├── Message.java
-    │   └── Main.java
-    └── test/java/com/quickchat/
-        ├── LoginTest.java
-        └── MessageTest.java
-```
+### Part 3 (new)
+- Arrays: Sent, Disregarded, Stored, Message Hashes, Message IDs
+- Menu option **4) Stored Messages** with:
+  - a) Display sender & recipient of stored messages
+  - b) Display longest stored message
+  - c) Search by Message ID
+  - d) Search by recipient
+  - e) Delete by Message Hash
+  - f) Full report of stored messages
 
 ## How to Run
 
 ```bash
-# Compile & run the console app
 mvn clean compile
 mvn exec:java
-
-# Run all unit tests
 mvn test
 ```
 
-## Message Hash Format
+## Test Data (from brief)
 
-`firstTwoDigitsOfID : messageNumber : FIRSTWORDLASTWORD` (all caps)
-
-Example from brief test data:  
-Message = “Hi Mike, can you join us for dinner tonight?”  
-→ Hash = `00:0:HITONIGHT`
-
-## JSON Storage
-
-Stored messages are written to `stored_messages.json` using the **org.json** library.  
-Attribution: https://github.com/stleary/JSON-java
-
-## GitHub Notes
-
-- Create a feature branch: `git checkout -b feature/part2-messages`
-- Minimum 6 commits recommended
-- GitHub Actions will automatically run tests on every push
+| # | Recipient        | Message                                              | Flag      |
+|---|------------------|------------------------------------------------------|-----------|
+| 1 | +27834557896     | Did you get the cake?                                | Sent      |
+| 2 | +27838884567     | Where are you? You are late! I have asked you to be on time. | Stored |
+| 3 | +27834484567     | Yohoooo, I am at your gate.                          | Disregard |
+| 4 | 0838884567       | It is dinner time !                                  | Sent      |
+| 5 | +27838884567     | Ok, I am leaving without you.                        | Stored    |
